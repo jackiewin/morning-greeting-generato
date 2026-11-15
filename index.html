@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>行動版智慧早安圖產生器</title>
+    <!-- Tailwind CSS 樣式框架 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    <style>
+        .font-serif-tc { font-family: 'Noto Serif TC', serif; }
+        .font-handwriting { font-family: 'Zhi Mang Xing', cursive; }
+        input, select, textarea { font-size: 16px !important; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between antialiased">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-white shadow-xs sticky top-0 z-20 py-3 px-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <h1 class="text-base sm:text-lg font-bold text-emerald-700 flex items-center gap-1.5">
+                🌅 早安圖產生器
+            </h1>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">Mobile RWD Ready</span>
+        </div>
+    </header>
+
+    <!-- 主要內容區 -->
+    <main class="max-w-4xl mx-auto px-3 sm:px-4 py-4 w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-8">
+        
+        <!-- 左側：控制面板 -->
+        <section class="bg-white p-4 sm:p-6 rounded-2xl shadow-xs border border-slate-200 flex flex-col gap-4 lg:col-span-6 order-2 lg:order-1">
+            <h2 class="text-base font-semibold border-b border-slate-100 pb-2 text-slate-700 flex items-center gap-1.5">
+                🎨 編輯文字與背景
+            </h2>
+
+            <!-- 背景圖片選擇 -->
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">背景意境圖片主題</label>
+                <div class="flex gap-2">
+                    <select id="categorySelect" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="nature">山林晨曦 (Nature)</option>
+                        <option value="sunrise">日出光芒 (Sunrise)</option>
+                        <option value="flower">花卉植物 (Flowers)</option>
+                        <option value="fog">雲霧山嵐 (Misty)</option>
+                    </select>
+                    <button onclick="changeBackground()" class="bg-emerald-600 active:bg-emerald-800 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer whitespace-nowrap shadow-xs">
+                        換一張
+                    </button>
+                </div>
+            </div>
+
+            <!-- 主標題文字 -->
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">早安主標題</label>
+                <input type="text" id="mainText" value="早安安，美好的一天開始！" 
+                    class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    oninput="drawCanvas()">
+            </div>
+
+            <!-- 副標題文字 -->
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">溫馨小語 / 金句</label>
+                <textarea id="subText" rows="3" 
+                    class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
+                    oninput="drawCanvas()">心境放寬，福氣自來。願你今日平安喜樂，順心如意！</textarea>
+            </div>
+
+            <!-- 署名 -->
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">署名 / 日期</label>
+                <input type="text" id="authorText" value="平安喜樂 · 祝福您" 
+                    class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    oninput="drawCanvas()">
+            </div>
+
+            <!-- 文字位置排版 -->
+            <div>
+                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">文字對齊與位置</label>
+                <select id="positionSelect" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none" onchange="drawCanvas()">
+                    <option value="center">置中優雅排版</option>
+                    <option value="top">靠上精緻排版</option>
+                    <option value="bottom">置底溫馨排版</option>
+                </select>
+            </div>
+
+            <!-- 下載按鈕 -->
+            <button onclick="downloadImage()" class="mt-2 w-full bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-98 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-2 text-base">
+                📥 下載高畫質早安圖
+            </button>
+        </section>
+
+        <!-- 右側：即時預覽畫布區 -->
+        <section class="bg-white p-4 sm:p-6 rounded-2xl shadow-xs border border-slate-200 lg:col-span-6 flex flex-col items-center justify-center order-1 lg:order-2">
+            <h2 class="text-base font-semibold border-b border-slate-100 pb-2 text-slate-700 w-full mb-3 flex items-center justify-between">
+                <span>🖼️ 即時預覽</span>
+                <span class="text-xs text-slate-400 font-normal">自動縮放適應螢幕</span>
+            </h2>
+            
+            <div class="relative w-full max-w-[280px] sm:max-w-[320px] aspect-[4/5] bg-slate-200 rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
+                <canvas id="morningCanvas" class="w-full h-full object-cover"></canvas>
+                <div id="loadingIndicator" class="absolute inset-0 bg-black/50 text-white flex items-center justify-center text-xs sm:text-sm font-medium backdrop-blur-xs transition-opacity">
+                    載入圖片中...
+                </div>
+            </div>
+            <p class="text-[11px] sm:text-xs text-slate-400 mt-2.5 text-center">
+                💡 手機點擊下載後，可直接分享到 LINE 群組或親友聊天室！
+            </p>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
+        <p>Morning Greeting Generator &bull; Mobile RWD Optimized</p>
+    </footer>
+
+    <!-- JavaScript 核心邏輯 -->
+    <script>
+        const canvas = document.getElementById('morningCanvas');
+        const ctx = canvas.getContext('2d');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        canvas.width = 800;
+        canvas.height = 1000;
+
+        let currentImg = new Image();
+        currentImg.crossOrigin = "anonymous";
+
+        const categories = {
+            nature: "morning,nature,forest",
+            sunrise: "sunrise,morning,sunlight",
+            flower: "flower,blossom,spring",
+            fog: "fog,mist,mountain,landscape"
+        };
+
+        function changeBackground() {
+            loadingIndicator.style.opacity = '1';
+            loadingIndicator.innerText = "正在切換美景...";
+            const randomId = Math.floor(Math.random() * 1000);
+            currentImg.src = `https://picsum.photos/seed/${randomId}/800/1000`;
+        }
+
+        currentImg.onload = function() {
+            loadingIndicator.style.opacity = '0';
+            drawCanvas();
+        };
+
+        currentImg.onerror = function() {
+            loadingIndicator.innerText = "圖片載入失敗，請重試";
+        };
+
+        function drawCanvas() {
+            if (!currentImg.complete) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImg, 0, 0, canvas.width, canvas.height);
+
+            const position = document.getElementById('positionSelect').value;
+            let gradient;
+            if (position === 'top') {
+                gradient = ctx.createLinearGradient(0, 0, 0, 700);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 0.65)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            } else if (position === 'bottom') {
+                gradient = ctx.createLinearGradient(0, 300, 0, 1000);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.75)');
+            } else {
+                gradient = ctx.createRadialGradient(400, 500, 100, 400, 500, 600);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 0.15)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+            }
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const mainText = document.getElementById('mainText').value;
+            const subText = document.getElementById('subText').value;
+            const authorText = document.getElementById('authorText').value;
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+            ctx.shadowBlur = 14;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+
+            let startY = 500;
+            if (position === 'top') startY = 200;
+            if (position === 'bottom') startY = 720;
+
+            ctx.font = 'bold 52px "Noto Serif TC", serif';
+            ctx.fillText(mainText, 400, startY);
+
+            ctx.font = '32px "Noto Serif TC", serif';
+            ctx.fillStyle = '#F3F4F6';
+            wrapText(ctx, subText, 400, startY + 75, 680, 46);
+
+            ctx.font = 'italic 26px sans-serif';
+            ctx.fillStyle = '#E2E8F0';
+            let authorY = startY + 180;
+            if (subText.length > 25) authorY += 40;
+            ctx.fillText(authorText, 400, authorY);
+
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const paragraphs = text.split('\n');
+            let currentY = y;
+            
+            for (let p = 0; p < paragraphs.length; p++) {
+                let chars = paragraphs[p].split('');
+                let line = '';
+                
+                for (let n = 0; n < chars.length; n++) {
+                    let testLine = line + chars[n];
+                    let metrics = context.measureText(testLine);
+                    let testWidth = metrics.width;
+                    
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, currentY);
+                        line = chars[n];
+                        currentY += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, currentY);
+                currentY += lineHeight;
+            }
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = `morning-greeting-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        window.onload = function() {
+            changeBackground();
+        };
+    </script>
+</body>
+</html>

@@ -30,9 +30,15 @@
         
         <!-- 左側：控制面板 -->
         <section class="bg-white p-4 sm:p-6 rounded-2xl shadow-xs border border-slate-200 flex flex-col gap-4 lg:col-span-6 order-2 lg:order-1">
-            <h2 class="text-base font-semibold border-b border-slate-100 pb-2 text-slate-700 flex items-center gap-1.5">
-                🎨 編輯文字與背景
-            </h2>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h2 class="text-base font-semibold text-slate-700 flex items-center gap-1.5">
+                    🎨 編輯文字與背景
+                </h2>
+                <!-- 新增：文字隨機重新生成按鈕 -->
+                <button onclick="randomizeText()" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs px-3 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center gap-1 shadow-2xs">
+                    🔄 重新生成文字
+                </button>
+            </div>
 
             <!-- 背景圖片選擇 -->
             <div>
@@ -133,6 +139,51 @@
             flower: "flower,blossom,spring",
             fog: "fog,mist,mountain,landscape"
         };
+
+        // 預設金句庫，供點擊「重新生成文字」時隨機替換
+        const textPresets = [
+            {
+                main: "早安安，美好的一天開始！",
+                sub: "心境放寬，福氣自來。願你今日平安喜樂，順心如意！",
+                author: "平安喜樂 · 祝福您"
+            },
+            {
+                main: "晨光好，願你有個充滿活力的一天！",
+                sub: "把煩惱留在昨天，把微笑帶給今天。加油！",
+                author: "溫馨問候 · 祝您順心"
+            },
+            {
+                main: "早安！陽光正好，微風不燥。",
+                sub: "生活不需要過多繁華，開心就好；日子不需要過多奢求，平安就好。",
+                author: "好友祝福 · 每一天都美好"
+            },
+            {
+                main: "新的一天，新的希望！",
+                sub: "帶著微笑出發，把最好的自己展現給世界。早安吉祥！",
+                author: "吉祥如意 · 天天開心"
+            },
+            {
+                main: "早安！平安健康就是最大的幸福。",
+                sub: "感恩所有的相遇與陪伴，願你今天被世界溫柔以待。",
+                author: "福慧雙修 · 祝安康"
+            },
+            {
+                main: "晨曦初露，福氣滿屋。早安！",
+                sub: "保持好心情，好運自然來。祝你今天事事順心！",
+                author: "開心每一天 · 祝福相隨"
+            }
+        ];
+
+        function randomizeText() {
+            const randomIndex = Math.floor(Math.random() * textPresets.length);
+            const selected = textPresets[randomIndex];
+
+            document.getElementById('mainText').value = selected.main;
+            document.getElementById('subText').value = selected.sub;
+            document.getElementById('authorText').value = selected.author;
+
+            drawCanvas();
+        }
 
         function changeBackground() {
             loadingIndicator.style.opacity = '1';

@@ -85,6 +85,17 @@
                     oninput="drawCanvas()">
             </div>
 
+            <!-- 新增：字型大小調整滑桿 -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs sm:text-sm font-medium text-slate-700">字型大小比例</label>
+                    <span id="fontSizeValue" class="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">100%</span>
+                </div>
+                <input type="range" id="fontSizeRange" min="70" max="140" value="100" step="5" 
+                    class="w-full accent-emerald-600 cursor-pointer"
+                    oninput="updateFontSizeLabel(); drawCanvas();">
+            </div>
+
             <!-- 文字位置排版 -->
             <div>
                 <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">文字對齊與位置</label>
@@ -189,6 +200,11 @@
             drawCanvas();
         }
 
+        function updateFontSizeLabel() {
+            const val = document.getElementById('fontSizeRange').value;
+            document.getElementById('fontSizeValue').innerText = val + '%';
+        }
+
         function changeBackground() {
             loadingIndicator.style.opacity = '1';
             loadingIndicator.innerText = "正在重新生成圖片...";
@@ -233,6 +249,9 @@
             const subText = document.getElementById('subText').value;
             const authorText = document.getElementById('authorText').value;
 
+            // 取得字型大小比例係數
+            const scale = parseFloat(document.getElementById('fontSizeRange').value) / 100;
+
             ctx.textAlign = 'center';
             ctx.fillStyle = '#FFFFFF';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
@@ -244,17 +263,26 @@
             if (position === 'top') startY = 200;
             if (position === 'bottom') startY = 720;
 
-            ctx.font = 'bold 52px "Noto Serif TC", serif';
+            // 主標題大小隨比例縮放 (基準 52px)
+            const mainFontSize = Math.round(52 * scale);
+            ctx.font = `bold ${mainFontSize}px "Noto Serif TC", serif`;
             ctx.fillText(mainText, 400, startY);
 
-            ctx.font = '32px "Noto Serif TC", serif';
+            // 副標題大小隨比例縮放 (基準 32px，行距 46px)
+            const subFontSize = Math.round(32 * scale);
+            const subLineHeight = Math.round(46 * scale);
+            ctx.font = `${subFontSize}px "Noto Serif TC", serif`;
             ctx.fillStyle = '#F3F4F6';
-            wrapText(ctx, subText, 400, startY + 75, 680, 46);
+            wrapText(ctx, subText, 400, startY + Math.round(75 * scale), 680, subLineHeight);
 
-            ctx.font = 'italic 26px sans-serif';
+            // 署名大小隨比例縮放 (基準 26px)
+            const authorFontSize = Math.round(26 * scale);
+            ctx.font = `italic ${authorFontSize}px sans-serif`;
             ctx.fillStyle = '#E2E8F0';
-            let authorY = startY + 180;
-            if (subText.length > 25) authorY += 40;
+            
+            // 依副標題長度與字型大小動態計算署名位置
+            let authorY = startY + Math.round(180 * scale);
+            if (subText.length > 25) authorY += Math.round(40 * scale);
             ctx.fillText(authorText, 400, authorY);
 
             ctx.shadowBlur = 0;

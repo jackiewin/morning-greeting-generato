@@ -15,13 +15,16 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between antialiased">
 
+    <!-- 隱藏的標準 HTML5 Audio 播放器以繞過瀏覽器音訊載入阻擋 -->
+    <audio id="bgAudio" preload="auto" crossorigin="anonymous"></audio>
+
     <!-- 頂部導覽列 -->
     <header class="bg-white shadow-xs sticky top-0 z-20 py-3 px-4">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <h1 class="text-base sm:text-lg font-bold text-emerald-700 flex items-center gap-1.5">
                 🌅 早安圖與音樂產生器
             </h1>
-            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">Topic-Matched Images</span>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">Audio Robust Fix</span>
         </div>
     </header>
 
@@ -144,9 +147,9 @@
                     <div>
                         <label class="block text-[11px] font-medium text-teal-800 mb-1">選擇無版權音樂風格</label>
                         <select id="musicTrack" class="w-full border border-teal-200 rounded-lg p-2 text-xs bg-white text-teal-900 outline-none">
-                            <option value="https://actions.google.com/sounds/v1/ambiences/morning_birds.ogg">早晨清脆鳥鳴 (Morning Birds)</option>
-                            <option value="https://actions.google.com/sounds/v1/weather/rain_heavy.ogg">療癒自然雨聲 (Nature Rain)</option>
-                            <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=peaceful-piano-ambient-111429.mp3">和平清晨鋼琴 (Peaceful Piano)</option>
+                            <option value="https://upload.wikimedia.org/wikipedia/commons/b/b2/Beethoven_Moonlight_Sonata.ogg">貝多芬月光奏鳴曲 (Classical Piano)</option>
+                            <option value="https://upload.wikimedia.org/wikipedia/commons/3/3d/Vivaldi_Winter_m1_Allegro_non_molto_MIDI.ogg">韋瓦第四季冬 (Vivaldi Winter)</option>
+                            <option value="https://upload.wikimedia.org/wikipedia/commons/6/62/Chopin_Nocturne_Op_9_No_2_Massimo_Jon_Pellegrini.ogg">蕭邦夜曲 (Chopin Nocturne)</option>
                         </select>
                     </div>
                     
@@ -215,7 +218,7 @@
 
     <!-- 頁尾 -->
     <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
-        <p>Morning Greeting Generator &bull; Topic-Matched Images</p>
+        <p>Morning Greeting Generator &bull; Audio Robust Fix</p>
     </footer>
 
     <!-- JavaScript 核心邏輯 -->
@@ -230,10 +233,9 @@
         let currentImg = new Image();
         currentImg.crossOrigin = "anonymous";
 
-        let audioPlayer = null;
         let audioTimer = null;
+        const bgAudio = document.getElementById('bgAudio');
 
-        // 精準分類的高畫質風景圖庫（使用 Picsum / Unsplash 高解析隨機照片 ID）
         const categoryPools = {
             nature: [1040, 1043, 1067, 1011, 1018, 1020, 1025, 1032, 1035],
             sunrise: [1015, 1047, 1050, 1069, 1074, 1084, 1039],
@@ -296,11 +298,7 @@
             
             const category = document.getElementById('categorySelect').value;
             const pool = categoryPools[category] || categoryPools.nature;
-            
-            // 從該主題的專屬圖片 ID 庫中隨機挑選一張
             const randomId = pool[Math.floor(Math.random() * pool.length)];
-            
-            // 結合亂數確保每次點擊「換一張」都能重新發送請求
             const cacheBuster = Math.floor(Math.random() * 1000);
             currentImg.src = `https://picsum.photos/id/${randomId}/800/1000?random=${cacheBuster}`;
         }
@@ -326,7 +324,6 @@
 
         currentImg.onerror = function() {
             loadingIndicator.innerText = "圖片載入失敗，正在切換備用圖源...";
-            // 備用方案：若特定 ID 載入失敗則退回純隨機美景
             currentImg.src = `https://picsum.photos/800/1000?random=${Math.random()}`;
         };
 
@@ -437,20 +434,18 @@
             }
         }
 
+        // 使用標準 HTML5 Audio 元素與 Wikimedia 穩定音源修復試聽
         function previewMusic() {
             const trackUrl = document.getElementById('musicTrack').value;
             const durationSec = parseInt(document.getElementById('musicDuration').value, 10);
             const btn = document.getElementById('playMusicBtn');
 
-            if (audioPlayer) {
-                stopMusic();
-            }
+            stopMusic();
 
-            audioPlayer = new Audio();
-            audioPlayer.crossOrigin = "anonymous";
-            audioPlayer.src = trackUrl;
+            bgAudio.src = trackUrl;
+            bgAudio.load();
             
-            audioPlayer.play().then(() => {
+            bgAudio.play().then(() => {
                 btn.innerText = "⏹️ 正在播放音樂...";
                 btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
                 btn.classList.add('bg-rose-600', 'hover:bg-rose-700');
@@ -460,16 +455,15 @@
                     stopMusic();
                 }, durationSec * 1000);
             }).catch(e => {
-                console.error(e);
-                alert("播放失敗：可能是瀏覽器阻擋自動播放或音訊連結格式不支援。請確認手機解除靜音開關！");
+                console.error("Audio play error:", e);
+                alert("播放被阻擋：請確認手機未開啟靜音模式，並再點擊一次試聽按鈕。");
             });
         }
 
         function stopMusic() {
-            if (audioPlayer) {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                audioPlayer = null;
+            if (bgAudio) {
+                bgAudio.pause();
+                bgAudio.currentTime = 0;
             }
             if (audioTimer) {
                 clearTimeout(audioTimer);
@@ -499,7 +493,7 @@
         }
 
         function closeDownloadModal() {
-            document.getElementById('downloadModal').classList.add('hidden');
+            document.getElementById('downloadModal').classList.0('hidden') || document.getElementById('downloadModal').classList.add('hidden');
         }
 
         window.onload = function() {

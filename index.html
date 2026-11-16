@@ -15,16 +15,13 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between antialiased">
 
-    <!-- 隱藏的標準 HTML5 Audio 播放器以繞過瀏覽器音訊載入阻擋 -->
-    <audio id="bgAudio" preload="auto" crossorigin="anonymous"></audio>
-
     <!-- 頂部導覽列 -->
     <header class="bg-white shadow-xs sticky top-0 z-20 py-3 px-4">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <h1 class="text-base sm:text-lg font-bold text-emerald-700 flex items-center gap-1.5">
                 🌅 早安圖與音樂產生器
             </h1>
-            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">Audio Robust Fix</span>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">iOS PWA & Music Ready</span>
         </div>
     </header>
 
@@ -147,9 +144,9 @@
                     <div>
                         <label class="block text-[11px] font-medium text-teal-800 mb-1">選擇無版權音樂風格</label>
                         <select id="musicTrack" class="w-full border border-teal-200 rounded-lg p-2 text-xs bg-white text-teal-900 outline-none">
-                            <option value="https://upload.wikimedia.org/wikipedia/commons/b/b2/Beethoven_Moonlight_Sonata.ogg">貝多芬月光奏鳴曲 (Classical Piano)</option>
-                            <option value="https://upload.wikimedia.org/wikipedia/commons/3/3d/Vivaldi_Winter_m1_Allegro_non_molto_MIDI.ogg">韋瓦第四季冬 (Vivaldi Winter)</option>
-                            <option value="https://upload.wikimedia.org/wikipedia/commons/6/62/Chopin_Nocturne_Op_9_No_2_Massimo_Jon_Pellegrini.ogg">蕭邦夜曲 (Chopin Nocturne)</option>
+                            <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=peaceful-piano-ambient-111429.mp3">和平清晨鋼琴 (Peaceful Piano)</option>
+                            <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=gentle-lofi-chill-10515.mp3">輕柔舒緩 Lofi (Gentle Lofi)</option>
+                            <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c3a63d9d.mp3?filename=meditation-nature-10777.mp3">自然療癒心靈 (Meditation Nature)</option>
                         </select>
                     </div>
                     
@@ -169,8 +166,8 @@
                 </div>
             </div>
 
-            <!-- 下載按鈕 -->
-            <button onclick="prepareIOSDownload()" class="mt-2 w-full bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-98 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-2 text-base">
+            <!-- 下載按鈕 (iOS 閃退修復方案：彈出預覽視窗供長按儲存) -->
+            <button onclick="openDownloadModal()" class="mt-2 w-full bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-98 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-2 text-base">
                 📥 下載高畫質早安圖
             </button>
         </section>
@@ -189,36 +186,36 @@
                 </div>
             </div>
             <p class="text-[11px] sm:text-xs text-slate-400 mt-2.5 text-center">
-                💡 點擊下方下載後，若畫面跳出圖片，直接**長按圖片**選擇「加入照片」即可！
+                💡 iOS 加到主畫面後，點擊下載會彈出圖檔，長按圖片即可「加入照片」！
             </p>
         </section>
 
     </main>
 
     <!-- iOS 專屬防閃退下載 Modal 彈跳視窗 -->
-    <div id="downloadModal" class="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 flex flex-col items-center shadow-2xl">
-            <div class="flex items-center justify-between w-full mb-2">
-                <h3 class="text-sm font-bold text-slate-800">📌 請長按下方圖片儲存</h3>
-                <button onclick="closeDownloadModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold px-2">&times;</button>
-            </div>
-            <p class="text-[11px] text-rose-600 mb-3 text-center bg-rose-50 px-2 py-1 rounded-md w-full">
-                iOS 獨立 App 限制無法直接下載檔案，請長按圖片點選「加入照片」
-            </p>
+    <div id="downloadModal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden backdrop-blur-xs">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 flex flex-col items-center shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 class="text-base font-bold text-slate-800 mb-1">📥 長按圖片即可儲存</h3>
+            <p class="text-xs text-slate-500 mb-3 text-center">因 iOS Safari 限制，請直接長按下方圖片並選擇「加入照片」或「儲存影像」</p>
             
-            <div class="w-full aspect-[4/5] bg-slate-100 rounded-xl overflow-hidden border border-slate-200 mb-3 flex items-center justify-center">
-                <img id="modalImagePreview" class="w-full h-full object-contain select-all" alt="早安圖預覽">
+            <div class="w-full aspect-[4/5] bg-slate-100 rounded-xl overflow-hidden border border-slate-200 mb-4 flex items-center justify-center relative">
+                <img id="modalImagePreview" class="w-full h-full object-contain" alt="早安圖預覽">
             </div>
 
-            <button onclick="closeDownloadModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
-                完成 / 返回繼續編輯
-            </button>
+            <div class="flex gap-2 w-full">
+                <a id="directDownloadLink" download="morning-greeting.png" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-center py-2.5 rounded-xl text-sm font-medium shadow-xs transition">
+                    直接下載檔案
+                </a>
+                <button onclick="closeDownloadModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer">
+                    關閉視窗
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- 頁尾 -->
     <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
-        <p>Morning Greeting Generator &bull; Audio Robust Fix</p>
+        <p>Morning Greeting Generator &bull; iOS PWA & Audio Optimized</p>
     </footer>
 
     <!-- JavaScript 核心邏輯 -->
@@ -233,14 +230,14 @@
         let currentImg = new Image();
         currentImg.crossOrigin = "anonymous";
 
+        let audioPlayer = null;
         let audioTimer = null;
-        const bgAudio = document.getElementById('bgAudio');
 
-        const categoryPools = {
-            nature: [1040, 1043, 1067, 1011, 1018, 1020, 1025, 1032, 1035],
-            sunrise: [1015, 1047, 1050, 1069, 1074, 1084, 1039],
-            flower: [1062, 102, 106, 119, 152, 360, 429, 593],
-            fog: [1016, 1038, 1048, 1057, 1068, 1081, 1082]
+        const categories = {
+            nature: "morning,nature,forest",
+            sunrise: "sunrise,morning,sunlight",
+            flower: "flower,blossom,spring",
+            fog: "fog,mist,mountain,landscape"
         };
 
         const textPresets = [
@@ -294,15 +291,12 @@
 
         function changeBackground() {
             loadingIndicator.style.opacity = '1';
-            loadingIndicator.innerText = "正在載入對應主題美景...";
-            
-            const category = document.getElementById('categorySelect').value;
-            const pool = categoryPools[category] || categoryPools.nature;
-            const randomId = pool[Math.floor(Math.random() * pool.length)];
-            const cacheBuster = Math.floor(Math.random() * 1000);
-            currentImg.src = `https://picsum.photos/id/${randomId}/800/1000?random=${cacheBuster}`;
+            loadingIndicator.innerText = "正在重新生成圖片...";
+            const randomId = Math.floor(Math.random() * 10000);
+            currentImg.src = `https://picsum.photos/seed/${randomId}/800/1000`;
         }
 
+        // 自行上傳照片處理
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -323,8 +317,7 @@
         };
 
         currentImg.onerror = function() {
-            loadingIndicator.innerText = "圖片載入失敗，正在切換備用圖源...";
-            currentImg.src = `https://picsum.photos/800/1000?random=${Math.random()}`;
+            loadingIndicator.innerText = "圖片載入失敗，請重試";
         };
 
         function drawCanvas() {
@@ -371,17 +364,20 @@
             if (position === 'top') startY = 200;
             if (position === 'bottom') startY = 720;
 
+            // 主標題
             const mainFontSize = Math.round(52 * scale);
             ctx.font = `bold ${mainFontSize}px "Noto Serif TC", serif`;
             ctx.fillStyle = mainColor;
             ctx.fillText(mainText, 400, startY);
 
+            // 副標題
             const subFontSize = Math.round(32 * scale);
             const subLineHeight = Math.round(46 * scale);
             ctx.font = `${subFontSize}px "Noto Serif TC", serif`;
             ctx.fillStyle = subColor;
             wrapText(ctx, subText, 400, startY + Math.round(75 * scale), 680, subLineHeight, subColor);
 
+            // 署名
             const authorFontSize = Math.round(26 * scale);
             ctx.font = `italic ${authorFontSize}px sans-serif`;
             ctx.fillStyle = authorColor;
@@ -423,6 +419,7 @@
             }
         }
 
+        // 背景音樂控制開關
         function toggleMusicSettings() {
             const enable = document.getElementById('enableMusic').checked;
             const options = document.getElementById('musicOptions');
@@ -434,36 +431,36 @@
             }
         }
 
-        // 使用標準 HTML5 Audio 元素與 Wikimedia 穩定音源修復試聽
+        // 試聽背景音樂並控制時間長度
         function previewMusic() {
             const trackUrl = document.getElementById('musicTrack').value;
             const durationSec = parseInt(document.getElementById('musicDuration').value, 10);
             const btn = document.getElementById('playMusicBtn');
 
-            stopMusic();
+            if (audioPlayer) {
+                stopMusic();
+            }
 
-            bgAudio.src = trackUrl;
-            bgAudio.load();
-            
-            bgAudio.play().then(() => {
+            audioPlayer = new Audio(trackUrl);
+            audioPlayer.play().then(() => {
                 btn.innerText = "⏹️ 正在播放音樂...";
                 btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
                 btn.classList.add('bg-rose-600', 'hover:bg-rose-700');
                 btn.setAttribute('onclick', 'stopMusic()');
 
+                // 設定指定秒數後自動停止
                 audioTimer = setTimeout(() => {
                     stopMusic();
                 }, durationSec * 1000);
             }).catch(e => {
-                console.error("Audio play error:", e);
-                alert("播放被阻擋：請確認手機未開啟靜音模式，並再點擊一次試聽按鈕。");
+                alert("播放被瀏覽器阻擋或載入失敗，請再試一次。");
             });
         }
 
         function stopMusic() {
-            if (bgAudio) {
-                bgAudio.pause();
-                bgAudio.currentTime = 0;
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer = null;
             }
             if (audioTimer) {
                 clearTimeout(audioTimer);
@@ -478,22 +475,16 @@
             }
         }
 
-        function prepareIOSDownload() {
-            loadingIndicator.style.opacity = '1';
-            loadingIndicator.innerText = "正在生成圖片...";
-            
-            setTimeout(() => {
-                const dataUrl = canvas.toDataURL('image/png', 0.9);
-                const modalImg = document.getElementById('modalImagePreview');
-                modalImg.src = dataUrl;
-                
-                loadingIndicator.style.opacity = '0';
-                document.getElementById('downloadModal').classList.remove('hidden');
-            }, 100);
+        // iOS 防閃退下載 Modal 開啟
+        function openDownloadModal() {
+            const dataUrl = canvas.toDataURL('image/png', 1.0);
+            document.getElementById('modalImagePreview').src = dataUrl;
+            document.getElementById('directDownloadLink').href = dataUrl;
+            document.getElementById('downloadModal').classList.remove('hidden');
         }
 
         function closeDownloadModal() {
-            document.getElementById('downloadModal').classList.0('hidden') || document.getElementById('downloadModal').classList.add('hidden');
+            document.getElementById('downloadModal').classList.add('hidden');
         }
 
         window.onload = function() {

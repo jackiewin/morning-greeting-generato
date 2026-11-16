@@ -61,31 +61,49 @@
                 </div>
             </div>
 
-            <!-- 主標題文字 -->
+            <!-- 主標題文字與顏色 -->
             <div>
-                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">早安主標題</label>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs sm:text-sm font-medium text-slate-600">早安主標題</label>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] text-slate-400">顏色</span>
+                        <input type="color" id="mainColor" value="#FFFFFF" class="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0 bg-transparent" onchange="drawCanvas()">
+                    </div>
+                </div>
                 <input type="text" id="mainText" value="早安安，美好的一天開始！" 
                     class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
                     oninput="drawCanvas()">
             </div>
 
-            <!-- 副標題文字 -->
+            <!-- 副標題文字與顏色 -->
             <div>
-                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">溫馨小語 / 金句</label>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs sm:text-sm font-medium text-slate-600">溫馨小語 / 金句</label>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] text-slate-400">顏色</span>
+                        <input type="color" id="subColor" value="#F3F4F6" class="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0 bg-transparent" onchange="drawCanvas()">
+                    </div>
+                </div>
                 <textarea id="subText" rows="3" 
                     class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
                     oninput="drawCanvas()">心境放寬，福氣自來。願你今日平安喜樂，順心如意！</textarea>
             </div>
 
-            <!-- 署名 -->
+            <!-- 署名與顏色 -->
             <div>
-                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">署名 / 日期</label>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs sm:text-sm font-medium text-slate-600">署名 / 日期</label>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] text-slate-400">顏色</span>
+                        <input type="color" id="authorColor" value="#E2E8F0" class="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0 bg-transparent" onchange="drawCanvas()">
+                    </div>
+                </div>
                 <input type="text" id="authorText" value="平安喜樂 · 祝福您" 
                     class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
                     oninput="drawCanvas()">
             </div>
 
-            <!-- 新增：字型大小調整滑桿 -->
+            <!-- 字型大小調整滑桿 -->
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2">
                 <div class="flex items-center justify-between">
                     <label class="text-xs sm:text-sm font-medium text-slate-700">字型大小比例</label>
@@ -249,11 +267,15 @@
             const subText = document.getElementById('subText').value;
             const authorText = document.getElementById('authorText').value;
 
+            // 取得各區塊顏色
+            const mainColor = document.getElementById('mainColor').value;
+            const subColor = document.getElementById('subColor').value;
+            const authorColor = document.getElementById('authorColor').value;
+
             // 取得字型大小比例係數
             const scale = parseFloat(document.getElementById('fontSizeRange').value) / 100;
 
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#FFFFFF';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
             ctx.shadowBlur = 14;
             ctx.shadowOffsetX = 2;
@@ -263,24 +285,24 @@
             if (position === 'top') startY = 200;
             if (position === 'bottom') startY = 720;
 
-            // 主標題大小隨比例縮放 (基準 52px)
+            // 主標題
             const mainFontSize = Math.round(52 * scale);
             ctx.font = `bold ${mainFontSize}px "Noto Serif TC", serif`;
+            ctx.fillStyle = mainColor;
             ctx.fillText(mainText, 400, startY);
 
-            // 副標題大小隨比例縮放 (基準 32px，行距 46px)
+            // 副標題
             const subFontSize = Math.round(32 * scale);
             const subLineHeight = Math.round(46 * scale);
             ctx.font = `${subFontSize}px "Noto Serif TC", serif`;
-            ctx.fillStyle = '#F3F4F6';
-            wrapText(ctx, subText, 400, startY + Math.round(75 * scale), 680, subLineHeight);
+            ctx.fillStyle = subColor;
+            wrapText(ctx, subText, 400, startY + Math.round(75 * scale), 680, subLineHeight, subColor);
 
-            // 署名大小隨比例縮放 (基準 26px)
+            // 署名
             const authorFontSize = Math.round(26 * scale);
             ctx.font = `italic ${authorFontSize}px sans-serif`;
-            ctx.fillStyle = '#E2E8F0';
+            ctx.fillStyle = authorColor;
             
-            // 依副標題長度與字型大小動態計算署名位置
             let authorY = startY + Math.round(180 * scale);
             if (subText.length > 25) authorY += Math.round(40 * scale);
             ctx.fillText(authorText, 400, authorY);
@@ -290,7 +312,7 @@
             ctx.shadowOffsetY = 0;
         }
 
-        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        function wrapText(context, text, x, y, maxWidth, lineHeight, color) {
             const paragraphs = text.split('\n');
             let currentY = y;
             
@@ -304,6 +326,7 @@
                     let testWidth = metrics.width;
                     
                     if (testWidth > maxWidth && n > 0) {
+                        context.fillStyle = color;
                         context.fillText(line, x, currentY);
                         line = chars[n];
                         currentY += lineHeight;
@@ -311,6 +334,7 @@
                         line = testLine;
                     }
                 }
+                context.fillStyle = color;
                 context.fillText(line, x, currentY);
                 currentY += lineHeight;
             }

@@ -30,19 +30,24 @@
         
         <!-- 左側：控制面板 -->
         <section class="bg-white p-4 sm:p-6 rounded-2xl shadow-xs border border-slate-200 flex flex-col gap-4 lg:col-span-6 order-2 lg:order-1">
+            <!-- 頂部區塊：標題與重新生成文字 -->
             <div class="flex items-center justify-between border-b border-slate-100 pb-2">
                 <h2 class="text-base font-semibold text-slate-700 flex items-center gap-1.5">
                     🎨 編輯文字與背景
                 </h2>
-                <!-- 新增：文字隨機重新生成按鈕 -->
                 <button onclick="randomizeText()" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs px-3 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center gap-1 shadow-2xs">
                     🔄 重新生成文字
                 </button>
             </div>
 
-            <!-- 背景圖片選擇 -->
+            <!-- 背景圖片選擇與重新生成圖片 -->
             <div>
-                <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">背景意境圖片主題</label>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs sm:text-sm font-medium text-slate-600">背景意境圖片主題</label>
+                    <button onclick="changeBackground()" class="text-emerald-700 hover:text-emerald-800 text-xs font-semibold flex items-center gap-1 cursor-pointer bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-md transition">
+                        🖼️ 重新生成圖片
+                    </button>
+                </div>
                 <div class="flex gap-2">
                     <select id="categorySelect" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
                         <option value="nature">山林晨曦 (Nature)</option>
@@ -140,7 +145,6 @@
             fog: "fog,mist,mountain,landscape"
         };
 
-        // 預設金句庫，供點擊「重新生成文字」時隨機替換
         const textPresets = [
             {
                 main: "早安安，美好的一天開始！",
@@ -187,8 +191,8 @@
 
         function changeBackground() {
             loadingIndicator.style.opacity = '1';
-            loadingIndicator.innerText = "正在切換美景...";
-            const randomId = Math.floor(Math.random() * 1000);
+            loadingIndicator.innerText = "正在重新生成圖片...";
+            const randomId = Math.floor(Math.random() * 10000);
             currentImg.src = `https://picsum.photos/seed/${randomId}/800/1000`;
         }
 
